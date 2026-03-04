@@ -106,13 +106,6 @@ const createOrder = asyncHandler(async (req, res) => {
     ]
   });
 
-  const user = await User.findByPk(req.user.id);
-  await sendEmail({
-    to: user.email,
-    subject: `Order #${order.id} confirmed`,
-    html: `<p>Hi ${user.full_name},</p><p>Your order #${order.id} has been placed successfully.</p>`
-  });
-
   return res.status(201).json({
     success: true,
     message: 'Order created successfully',

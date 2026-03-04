@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import Chatbot from './components/Chatbot';
 
 // Pages
 import Home from './pages/Home';
@@ -87,6 +88,7 @@ function App() {
                 element={<Navigate to="/" replace />} 
               />
             </Routes>
+            <Chatbot />
           </div>
         </Router>
       </CartProvider>
