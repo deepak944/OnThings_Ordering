@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiRequest } from '../lib/api';
 
 const AuthContext = createContext(null);
+const PASSWORD_RESET_STORAGE_KEY = 'localPasswordResetRequests';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -37,6 +38,18 @@ export const AuthProvider = ({ children }) => {
 
   const setLocalUsers = (users) => {
     localStorage.setItem('users', JSON.stringify(users));
+  };
+
+  const getLocalResetRequests = () => {
+    try {
+      return JSON.parse(localStorage.getItem(PASSWORD_RESET_STORAGE_KEY) || '{}');
+    } catch (_error) {
+      return {};
+    }
+  };
+
+  const setLocalResetRequests = (requests) => {
+    localStorage.setItem(PASSWORD_RESET_STORAGE_KEY, JSON.stringify(requests));
   };
 
   // Check for existing auth user on mount
@@ -229,6 +242,105 @@ export const AuthProvider = ({ children }) => {
     setAuthMode('backend');
   };
 
+  const forgotPassword = async (email) => {
+    try {
+      const response = await apiRequest('/auth/forgot-password', {
+        method: 'POST',
+        body: { email }
+      });
+
+      return {
+        success: true,
+        message: response?.message || 'Password reset request submitted.',
+        data: response?.data || null
+      };
+    } catch (error) {
+      if (isConnectionError(error)) {
+        const users = getLocalUsers();
+        const foundUser = users.find((entry) => entry.email === email);
+        if (!foundUser) {
+          return {
+            success: true,
+            message: 'If an account with that email exists, a reset link has been prepared.'
+          };
+        }
+
+        const token = `local_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        const expiresAt = new Date(Date.now() + 1000 * 60 * 30).toISOString();
+        const requests = getLocalResetRequests();
+        requests[token] = {
+          email,
+          expiresAt
+        };
+        setLocalResetRequests(requests);
+
+        return {
+          success: true,
+          message: 'Password reset token generated for local testing.',
+          data: {
+            reset_token: token,
+            reset_url: `${window.location.origin}/reset-password?token=${token}`,
+            expires_at: expiresAt
+          }
+        };
+      }
+
+      return {
+        success: false,
+        error: error.message || 'Forgot password request failed.'
+      };
+    }
+  };
+
+  const resetPassword = async (tokenValue, password) => {
+    try {
+      const response = await apiRequest('/auth/reset-password', {
+        method: 'POST',
+        body: {
+          token: tokenValue,
+          password
+        }
+      });
+
+      return {
+        success: true,
+        message: response?.message || 'Password updated successfully.'
+      };
+    } catch (error) {
+      if (isConnectionError(error)) {
+        const requests = getLocalResetRequests();
+        const request = requests[tokenValue];
+        if (!request) {
+          return { success: false, error: 'Reset token is invalid or has expired.' };
+        }
+
+        if (new Date(request.expiresAt).getTime() <= Date.now()) {
+          delete requests[tokenValue];
+          setLocalResetRequests(requests);
+          return { success: false, error: 'Reset token is invalid or has expired.' };
+        }
+
+        const users = getLocalUsers();
+        const updatedUsers = users.map((entry) =>
+          entry.email === request.email ? { ...entry, password } : entry
+        );
+        setLocalUsers(updatedUsers);
+        delete requests[tokenValue];
+        setLocalResetRequests(requests);
+
+        return {
+          success: true,
+          message: 'Password reset successful. You can now log in with your new password.'
+        };
+      }
+
+      return {
+        success: false,
+        error: error.message || 'Password reset failed.'
+      };
+    }
+  };
+
   const isAuthenticated = !!user;
 
   const value = {
@@ -239,6 +351,8 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     signup,
     login,
+    forgotPassword,
+    resetPassword,
     logout
   };
 

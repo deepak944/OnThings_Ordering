@@ -4,7 +4,7 @@ import { MessageCircle, RotateCcw, Send, X } from 'lucide-react';
 const initialBotMessage = {
   id: 1,
   type: 'bot',
-  text: 'Hi! I am OnThings Support. Ask me anything about orders, payments, or account help.'
+  text: 'Hi! I am OnThings Support. Ask me where buttons are, how payment works, how checkout works, product questions, or tell me your name and I will remember it in this chat.'
 };
 
 const STORAGE_KEY = 'onthings_chatbot_user_id';
@@ -99,6 +99,7 @@ const Chatbot = () => {
     if (source === 'website_assisted') return 'Website';
     if (source === 'guardrail') return 'Website';
     if (source === 'faq') return 'Website';
+    if (source === 'fallback') return 'Support';
     if (source === 'api') return 'AI';
     if (source === 'out_of_scope') return 'Scope';
     if (source === 'offline') return 'Offline';
