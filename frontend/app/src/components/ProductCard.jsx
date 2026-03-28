@@ -126,13 +126,13 @@ const ProductCard = ({ product }) => {
   const inCart = isInCart(product.id);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden group">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.08)] hover:shadow-[0_20px_40px_rgba(30,64,175,0.18)] transition-all duration-300 border border-blue-100/80 overflow-hidden group hover:-translate-y-1">
       {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-slate-100 to-blue-50">
         <img
           src={imageCandidates[imageIndex]}
           alt={product.title || product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
           onError={() => {
             setImageIndex((current) => {
@@ -144,21 +144,22 @@ const ProductCard = ({ product }) => {
           }}
         />
         {inCart && (
-          <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+          <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
             In Cart
           </div>
         )}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent" />
       </div>
 
       {/* Product Details */}
       <div className="p-4">
         {/* Category */}
-        <span className="text-xs text-gray-500 uppercase tracking-wide">
+        <span className="inline-flex text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full uppercase tracking-wide">
           {product.category}
         </span>
 
         {/* Title */}
-        <h3 className="text-gray-900 font-medium text-sm mt-1 line-clamp-2 h-10">
+        <h3 className="text-gray-900 font-semibold text-[15px] mt-2 line-clamp-2 h-12 leading-snug">
           {product.title}
         </h3>
 
@@ -173,7 +174,7 @@ const ProductCard = ({ product }) => {
 
         {/* Price */}
         <div className="mt-3">
-          <span className="text-xl font-bold text-gray-900">
+          <span className="text-2xl font-extrabold text-slate-900">
             {formatPrice(product.price)}
           </span>
         </div>

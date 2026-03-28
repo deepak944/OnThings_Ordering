@@ -71,6 +71,13 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Manrope", "Segoe UI", sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "Sora", "Manrope", "Segoe UI", sans-serif;
   }
 }
 
@@ -188,6 +195,25 @@ button {
 
 .hero-brand-card {
   box-shadow: 0 14px 35px rgba(8, 44, 145, 0.32);
+}
+
+.hero-mesh {
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+  background-size: 34px 34px;
+  animation: hero-mesh-pan 14s linear infinite;
+}
+
+@keyframes hero-mesh-pan {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(34px, 34px, 0);
+  }
 }
 
 .hero-road {

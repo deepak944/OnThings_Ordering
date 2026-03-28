@@ -64,7 +64,7 @@ const Home = ({ searchQuery }) => {
   }, [products, searchQuery, selectedCategory]);
 
   return (
-    <div className="home-shell min-h-screen bg-gray-50">
+    <div className="home-shell min-h-screen bg-slate-50">
       <div className="home-atmosphere" aria-hidden="true">
         <span className="home-orb home-orb-one" />
         <span className="home-orb home-orb-two" />
@@ -72,21 +72,24 @@ const Home = ({ searchQuery }) => {
       </div>
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20" aria-hidden="true">
+          <div className="hero-mesh" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 relative">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
                 India's Biggest Shopping Festival
               </h1>
-              <p className="text-xl text-blue-100 mb-6">
+              <p className="text-lg md:text-xl text-blue-100/95 mb-6">
                 Get the best deals on electronics, fashion, and more!
               </p>
               <div className="flex gap-4">
-                <span className="bg-yellow-400 text-blue-900 px-4 py-2 rounded font-bold">
+                <span className="bg-yellow-300 text-blue-950 px-4 py-2 rounded-full font-extrabold shadow-[0_8px_20px_rgba(250,204,21,0.35)]">
                   Up to 70% OFF
                 </span>
-                <span className="bg-white text-blue-600 px-4 py-2 rounded font-bold">
+                <span className="bg-white/95 text-blue-700 px-4 py-2 rounded-full font-bold shadow-md">
                   Free Delivery
                 </span>
               </div>
@@ -124,8 +127,8 @@ const Home = ({ searchQuery }) => {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === category
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                    ? 'bg-blue-600 text-white shadow-[0_8px_20px_rgba(37,99,235,0.25)]'
+                    : 'bg-white text-gray-700 hover:bg-blue-50 hover:border-blue-200 border border-gray-300'
                 }`}
               >
                 {category}
@@ -188,7 +191,7 @@ const Home = ({ searchQuery }) => {
                 <Package className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Free Delivery</h3>
-              <p className="text-gray-600 text-sm">On orders above ₹500</p>
+              <p className="text-gray-600 text-sm">On orders above Rs.500</p>
             </div>
             <div>
               <div className="bg-green-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">

@@ -32,7 +32,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
   const cartCount = getCartCount();
 
   return (
-    <nav className="bg-blue-600 sticky top-0 z-50 shadow-lg">
+    <nav className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 sticky top-0 z-50 shadow-[0_12px_28px_rgba(30,58,138,0.35)] border-b border-white/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center flex-shrink-0 gap-2 group">
@@ -51,11 +51,11 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
                 placeholder="Search for products, brands and more..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full px-4 py-2 pr-12 rounded-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-2.5 pr-12 rounded-xl border border-white/35 bg-white/95 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm"
               />
               <button
                 type="submit"
-                className="absolute right-0 top-0 h-full px-4 text-blue-600 hover:text-blue-800"
+                className="absolute right-0 top-0 h-full px-4 text-blue-700 hover:text-blue-900"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -75,7 +75,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
                 </Link>
                 <Link
                   to="/signup"
-                  className="bg-white text-blue-600 px-4 py-1.5 rounded-sm font-medium hover:bg-yellow-300 hover:text-blue-800 transition-colors"
+                  className="bg-white text-blue-700 px-4 py-1.5 rounded-lg font-semibold hover:bg-yellow-300 hover:text-blue-900 transition-colors shadow-sm"
                 >
                   Sign Up
                 </Link>
@@ -112,7 +112,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
               <div className="relative">
                 <ShoppingCart className="h-6 w-6" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-yellow-300 text-blue-900 text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center shadow-[0_4px_10px_rgba(250,204,21,0.45)]">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
