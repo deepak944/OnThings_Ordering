@@ -3,6 +3,7 @@ import { apiRequest } from '../lib/api';
 
 const AuthContext = createContext(null);
 const PASSWORD_RESET_STORAGE_KEY = 'localPasswordResetRequests';
+const LOCAL_AUTH_FALLBACK_ENABLED = String(import.meta.env.VITE_ENABLE_LOCAL_AUTH_FALLBACK || 'false') === 'true';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -59,6 +60,17 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem('authUser');
         const storedToken = localStorage.getItem('authToken');
         const storedAuthMode = localStorage.getItem('authMode') || 'backend';
+
+        if (storedAuthMode === 'local' && !LOCAL_AUTH_FALLBACK_ENABLED) {
+          localStorage.removeItem('authUser');
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('authMode');
+          setUser(null);
+          setToken('');
+          setAuthMode('backend');
+          return;
+        }
+
         setAuthMode(storedAuthMode);
 
         if (storedUser && storedToken) {
@@ -121,7 +133,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('authMode', 'backend');
       return { success: true };
     } catch (error) {
-      if (isConnectionError(error)) {
+      if (LOCAL_AUTH_FALLBACK_ENABLED && isConnectionError(error)) {
         const users = getLocalUsers();
         const exists = users.find((entry) => entry.email === userData.email);
         if (exists) {
@@ -177,7 +189,7 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
-      if (isConnectionError(error)) {
+      if (LOCAL_AUTH_FALLBACK_ENABLED && isConnectionError(error)) {
         const users = getLocalUsers();
         const foundUser = users.find((entry) => entry.email === email && entry.password === password);
         if (!foundUser) {
@@ -255,7 +267,7 @@ export const AuthProvider = ({ children }) => {
         data: response?.data || null
       };
     } catch (error) {
-      if (isConnectionError(error)) {
+      if (LOCAL_AUTH_FALLBACK_ENABLED && isConnectionError(error)) {
         const users = getLocalUsers();
         const foundUser = users.find((entry) => entry.email === email);
         if (!foundUser) {
@@ -307,7 +319,7 @@ export const AuthProvider = ({ children }) => {
         message: response?.message || 'Password updated successfully.'
       };
     } catch (error) {
-      if (isConnectionError(error)) {
+      if (LOCAL_AUTH_FALLBACK_ENABLED && isConnectionError(error)) {
         const requests = getLocalResetRequests();
         const request = requests[tokenValue];
         if (!request) {

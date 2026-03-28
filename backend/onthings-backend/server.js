@@ -134,6 +134,28 @@ const formatErrorForLog = (error) => {
   }
 };
 
+const logDockerAccessInfo = () => {
+  const frontendUrl = process.env.PUBLIC_FRONTEND_URL;
+  const apiUrl = process.env.PUBLIC_API_URL;
+  const healthUrl = process.env.PUBLIC_HEALTH_URL;
+  const dbHost = process.env.PUBLIC_DB_HOST;
+  const dbPort = process.env.PUBLIC_DB_PORT;
+  const dbName = process.env.PUBLIC_DB_NAME;
+  const dbUser = process.env.PUBLIC_DB_USER;
+
+  const lines = [
+    'App links:',
+    frontendUrl ? `  Frontend: ${frontendUrl}` : null,
+    apiUrl ? `  API: ${apiUrl}` : null,
+    healthUrl ? `  Health: ${healthUrl}` : null,
+    dbHost && dbPort ? `  MySQL: mysql://${dbUser || 'user'}@${dbHost}:${dbPort}/${dbName || ''}` : null
+  ].filter(Boolean);
+
+  if (lines.length > 1) {
+    console.log(lines.join('\n'));
+  }
+};
+
 const start = async () => {
   try {
     await sequelize.authenticate();
@@ -151,6 +173,7 @@ const start = async () => {
     const port = Number(process.env.PORT || 5000);
     app.listen(port, () => {
       console.log(`Server running on port ${port}`);
+      logDockerAccessInfo();
     });
   } catch (error) {
     console.error('Failed to start backend:', formatErrorForLog(error));

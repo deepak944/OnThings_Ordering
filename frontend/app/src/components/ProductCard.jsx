@@ -1,13 +1,102 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { ShoppingCart, Zap, Star } from 'lucide-react';
 
+const CATEGORY_IMAGE_FALLBACKS = {
+  mobiles: [
+    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&auto=format&fit=crop&q=70'
+  ],
+  electronics: [
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&auto=format&fit=crop&q=70'
+  ],
+  laptops: [
+    'https://images.unsplash.com/photo-1517336714739-489689fd1ca8?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=70'
+  ],
+  footwear: [
+    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1463100099107-aa0980c362e6?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?w=800&auto=format&fit=crop&q=70'
+  ],
+  tv: [
+    'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1461151304267-38535e780c79?w=800&auto=format&fit=crop&q=70'
+  ],
+  wearables: [
+    'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=70'
+  ],
+  cameras: [
+    'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=800&auto=format&fit=crop&q=70'
+  ],
+  gaming: [
+    'https://images.unsplash.com/photo-1486401899868-0e435ed85128?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=800&auto=format&fit=crop&q=70'
+  ],
+  accessories: [
+    'https://images.unsplash.com/photo-1527814050087-3793815479db?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=70',
+    'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&auto=format&fit=crop&q=70'
+  ]
+};
+
+const buildLocalPlaceholder = (title, category) => {
+  const safeTitle = (title || 'OnThings Product').replace(/[<>&'"]/g, '').slice(0, 34);
+  const safeCategory = (category || 'Category').replace(/[<>&'"]/g, '').toUpperCase().slice(0, 22);
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='700' viewBox='0 0 700 700'>
+    <defs>
+      <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+        <stop offset='0%' stop-color='#1d4ed8'/>
+        <stop offset='100%' stop-color='#1e3a8a'/>
+      </linearGradient>
+    </defs>
+    <rect width='700' height='700' fill='url(#g)'/>
+    <circle cx='560' cy='120' r='120' fill='rgba(255,255,255,0.12)'/>
+    <circle cx='160' cy='560' r='180' fill='rgba(255,255,255,0.09)'/>
+    <text x='52' y='90' fill='white' opacity='0.92' font-size='40' font-family='Arial, sans-serif'>OnThings</text>
+    <text x='52' y='150' fill='#fde047' opacity='0.95' font-size='28' font-family='Arial, sans-serif'>${safeCategory}</text>
+    <text x='52' y='634' fill='white' opacity='0.92' font-size='26' font-family='Arial, sans-serif'>${safeTitle}</text>
+  </svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+};
+
+const getImageCandidates = (product) => {
+  const categoryKey = String(product.category || '').toLowerCase();
+  const baseImage = product.image || product.image_url || '';
+  const candidates = [];
+
+  if (baseImage) {
+    candidates.push(baseImage);
+  }
+
+  (CATEGORY_IMAGE_FALLBACKS[categoryKey] || []).forEach((url) => {
+    if (!candidates.includes(url)) {
+      candidates.push(url);
+    }
+  });
+
+  candidates.push(buildLocalPlaceholder(product.title || product.name, product.category));
+  return candidates;
+};
+
 const ProductCard = ({ product }) => {
   const { isAuthenticated } = useAuth();
   const { addToCart, isInCart } = useCart();
   const navigate = useNavigate();
+  const imageCandidates = useMemo(() => getImageCandidates(product), [product]);
+  const [imageIndex, setImageIndex] = useState(0);
+
+  useEffect(() => {
+    setImageIndex(0);
+  }, [product.id, product.image, product.image_url, product.category, product.title, product.name]);
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
@@ -41,11 +130,17 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.image}
-          alt={product.title}
+          src={imageCandidates[imageIndex]}
+          alt={product.title || product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            e.target.src = 'https://via.placeholder.com/300x300?text=No+Image';
+          loading="lazy"
+          onError={() => {
+            setImageIndex((current) => {
+              if (current >= imageCandidates.length - 1) {
+                return current;
+              }
+              return current + 1;
+            });
           }}
         />
         {inCart && (

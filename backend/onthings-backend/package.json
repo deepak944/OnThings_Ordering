@@ -7,6 +7,7 @@
     "init:db": "node scripts/initDatabase.js",
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "start:docker": "node scripts/waitForDatabase.js && node server.js",
     "seed:products": "node scripts/seedProducts.js",
     "update:order-status": "node scripts/updateOrderStatus.js"
   },

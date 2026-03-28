@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageCircle, RotateCcw, Send, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const initialBotMessage = {
   id: 1,
@@ -7,12 +8,13 @@ const initialBotMessage = {
   text: 'Hi! I am OnThings Support. Ask me where buttons are, how payment works, how checkout works, product questions, or tell me your name and I will remember it in this chat.'
 };
 
-const STORAGE_KEY = 'onthings_chatbot_user_id';
+const STORAGE_KEY_PREFIX = 'onthings_chatbot_user_id';
 
 const generateChatSessionId = () =>
   `chat_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
 const Chatbot = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,20 +30,37 @@ const Chatbot = () => {
   }, [messages, isLoading]);
 
   useEffect(() => {
-    let saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-      saved = generateChatSessionId();
-      localStorage.setItem(STORAGE_KEY, saved);
+    const storageKey = user?.id ? `${STORAGE_KEY_PREFIX}:${user.id}` : `${STORAGE_KEY_PREFIX}:guest`;
+
+    if (user?.id) {
+      userIdRef.current = `user:${user.id}`;
+    } else {
+      let saved = localStorage.getItem(storageKey);
+      if (!saved) {
+        saved = generateChatSessionId();
+        localStorage.setItem(storageKey, saved);
+      }
+      userIdRef.current = saved;
     }
-    userIdRef.current = saved;
-  }, []);
+
+    setMessages([initialBotMessage]);
+    setInput('');
+    setIsLoading(false);
+  }, [user?.id]);
 
   const resetChat = () => {
     setMessages([initialBotMessage]);
     setInput('');
     setIsLoading(false);
+
+    if (user?.id) {
+      userIdRef.current = `user:${user.id}`;
+      return;
+    }
+
+    const guestStorageKey = `${STORAGE_KEY_PREFIX}:guest`;
     const newSessionId = generateChatSessionId();
-    localStorage.setItem(STORAGE_KEY, newSessionId);
+    localStorage.setItem(guestStorageKey, newSessionId);
     userIdRef.current = newSessionId;
   };
 

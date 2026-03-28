@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { Search, ShoppingCart, User, LogOut, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, LogOut, Menu, Truck, X } from 'lucide-react';
 
 const Navbar = ({ searchQuery, setSearchQuery }) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -17,7 +17,6 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Search is already handled reactively
   };
 
   const handleLogout = () => {
@@ -36,14 +35,15 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
     <nav className="bg-blue-600 sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center flex-shrink-0">
-            <span className="text-white text-2xl font-bold italic tracking-tight">
-              On<span className="text-yellow-300">Things 🚚</span>
+          <Link to="/" className="flex items-center flex-shrink-0 gap-2 group">
+            <span className="brand-wordmark text-white text-2xl font-bold italic tracking-tight">
+              On<span className="text-yellow-300">Things</span>
+            </span>
+            <span className="brand-truck-wrap" aria-hidden="true">
+              <Truck className="brand-truck h-6 w-6 text-yellow-300" strokeWidth={2.4} />
             </span>
           </Link>
 
-          {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-2xl mx-8">
             <form onSubmit={handleSearchSubmit} className="w-full relative">
               <input
@@ -62,9 +62,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
             </form>
           </div>
 
-          {/* Right Side Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {/* Auth Buttons */}
             {!isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <Link
@@ -105,7 +103,6 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
               </div>
             )}
 
-            {/* Cart */}
             <Link
               to="/cart"
               className={`flex items-center gap-2 text-white hover:text-yellow-300 transition-colors ${
@@ -124,20 +121,14 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden text-white p-2"
           >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
-        {/* Mobile Search */}
         <div className="md:hidden pb-3">
           <form onSubmit={handleSearchSubmit} className="relative">
             <input
@@ -157,7 +148,6 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-blue-700 border-t border-blue-500">
           <div className="px-4 py-3 space-y-3">

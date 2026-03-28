@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { products as fallbackProducts } from '../data/products';
 import { apiRequest } from '../lib/api';
 import ProductCard from '../components/ProductCard';
-import { Search, Package } from 'lucide-react';
+import { Search, Package, Truck } from 'lucide-react';
 
 const Home = ({ searchQuery }) => {
   const [products, setProducts] = useState(fallbackProducts);
@@ -64,7 +64,13 @@ const Home = ({ searchQuery }) => {
   }, [products, searchQuery, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="home-shell min-h-screen bg-gray-50">
+      <div className="home-atmosphere" aria-hidden="true">
+        <span className="home-orb home-orb-one" />
+        <span className="home-orb home-orb-two" />
+        <span className="home-orb home-orb-three" />
+      </div>
+
       {/* Hero Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -86,8 +92,20 @@ const Home = ({ searchQuery }) => {
               </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8">
-                <Package className="h-32 w-32 text-white/80" />
+              <div className="hero-brand-card bg-white/10 backdrop-blur-sm rounded-xl p-7 w-[280px] sm:w-[320px]">
+                <p className="text-blue-100 text-sm tracking-[0.18em] uppercase mb-2">Welcome to</p>
+                <h2 className="text-white text-4xl font-black italic leading-none">
+                  On<span className="text-yellow-300">Things</span>
+                </h2>
+                <p className="text-blue-100 mt-3">Fast delivery. Better deals. Trusted shopping.</p>
+
+                <div className="hero-road mt-6" aria-hidden="true">
+                  <span className="hero-road-line" />
+                  <span className="hero-road-line" />
+                  <span className="hero-road-line" />
+                  <span className="hero-road-line" />
+                  <Truck className="hero-truck-runner h-7 w-7 text-yellow-300" strokeWidth={2.5} />
+                </div>
               </div>
             </div>
           </div>
@@ -95,9 +113,9 @@ const Home = ({ searchQuery }) => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
         {/* Category Filter */}
-        <div className="mb-8">
+        <div className="mb-8 rounded-2xl bg-white/75 backdrop-blur-sm border border-blue-100/70 p-4 shadow-[0_10px_30px_rgba(37,99,235,0.08)]">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Categories</h2>
           <div className="flex flex-wrap gap-2">
             {categories.map(category => (

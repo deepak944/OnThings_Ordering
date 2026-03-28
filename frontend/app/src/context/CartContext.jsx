@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext(null);
 
@@ -11,31 +12,53 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  const skipNextPersistRef = useRef(false);
+  const cartStorageKey = useMemo(() => {
+    if (user?.id) {
+      return `cart:${user.id}`;
+    }
 
-  // Load cart from localStorage on mount
+    return 'cart:guest';
+  }, [user?.id]);
+
+  // Load the active user's cart whenever the signed-in account changes.
   useEffect(() => {
+    skipNextPersistRef.current = true;
+    setIsInitialized(false);
+
     try {
-      const storedCart = localStorage.getItem('cart');
+      const storedCart = localStorage.getItem(cartStorageKey);
       if (storedCart) {
         const parsedCart = JSON.parse(storedCart);
         setCartItems(parsedCart);
+      } else {
+        setCartItems([]);
       }
     } catch (error) {
       console.error('Error parsing cart:', error);
-      localStorage.removeItem('cart');
+      localStorage.removeItem(cartStorageKey);
+      setCartItems([]);
     } finally {
       setIsInitialized(true);
     }
-  }, []);
+  }, [cartStorageKey]);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to localStorage whenever it changes for the active user.
   useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('cart', JSON.stringify(cartItems));
+    if (!isInitialized) {
+      return;
     }
-  }, [cartItems, isInitialized]);
+
+    if (skipNextPersistRef.current) {
+      skipNextPersistRef.current = false;
+      return;
+    }
+
+    localStorage.setItem(cartStorageKey, JSON.stringify(cartItems));
+  }, [cartItems, isInitialized, cartStorageKey]);
 
   const addToCart = (product) => {
     setCartItems(prevItems => {

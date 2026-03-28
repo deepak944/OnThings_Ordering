@@ -173,17 +173,6 @@ const Checkout = () => {
       });
 
       const razorpayOrder = paymentOrderRes?.data;
-      const appOrderRes = await apiRequest('/orders/create', {
-        method: 'POST',
-        token,
-        body: {
-          items: orderItems,
-          payment_method: 'razorpay',
-          shipping_address: shippingAddress,
-          razorpay_order_id: razorpayOrder?.id
-        }
-      });
-      const appOrder = appOrderRes?.data;
 
       const paymentResult = await new Promise((resolve, reject) => {
         const razorpay = new window.Razorpay({
@@ -203,23 +192,31 @@ const Checkout = () => {
           },
           handler: (response) => resolve(response),
           modal: {
-            ondismiss: () => reject(new Error('Payment cancelled by user'))
+            ondismiss: () => reject(new Error('Payment was cancelled. No order was created.'))
           }
+        });
+
+        razorpay.on('payment.failed', (response) => {
+          const description = response?.error?.description;
+          reject(new Error(description || 'Payment failed. No order was created.'));
         });
 
         razorpay.open();
       });
 
-      await apiRequest('/payment/verify', {
+      const verifyRes = await apiRequest('/payment/verify', {
         method: 'POST',
         token,
         body: {
-          app_order_id: appOrder?.id,
+          items: orderItems,
+          shipping_address: shippingAddress,
           razorpay_order_id: paymentResult.razorpay_order_id,
           razorpay_payment_id: paymentResult.razorpay_payment_id,
           razorpay_signature: paymentResult.razorpay_signature
         }
       });
+
+      const verifiedOrder = verifyRes?.data?.order;
 
       clearCart();
       setIsPlacingOrder(false);
@@ -227,14 +224,14 @@ const Checkout = () => {
 
       navigate('/order-success', {
         state: {
-          orderId: appOrder?.id,
-          orderDate: appOrder?.created_at || new Date().toISOString(),
-          total: appOrder?.total_amount || finalTotal
+          orderId: verifiedOrder?.id,
+          orderDate: verifiedOrder?.created_at || new Date().toISOString(),
+          total: verifiedOrder?.total_amount || finalTotal
         }
       });
     } catch (error) {
       setIsPlacingOrder(false);
-      setSubmitError(error.message || 'Failed to place order. Please try again.');
+      setSubmitError(error.message || 'Payment could not be completed. No order was created.');
     }
   };
 
